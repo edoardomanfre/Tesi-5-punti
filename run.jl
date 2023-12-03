@@ -33,7 +33,7 @@ include("ProductionFactors.jl")
 include("WaterLevels.jl")
 include("ExcelSavings.jl")
 include("volume_plot.jl")
-#include("head_function.jl")
+include("head_function.jl")
 #include("Plots.jl")
 #include("ErrorEvaluation.jl")
 
@@ -157,7 +157,7 @@ if runMode.simulate
     if runMode.parallellSim
       ResultsSim = paraSim(InputParameters, SolverParameters, ResultsSDP, SimScen, runMode)
     else
-      ResultsSim = sim(InputParameters, SolverParameters, ResultsSDP, SimScen, runMode)
+      ResultsSim = sim(InputParameters, SolverParameters, ResultsSDP, SimScen, runMode, Coeff)
     end
   end #timer "SDP simulation"  
 

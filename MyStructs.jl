@@ -383,8 +383,8 @@ struct Results
   Pumping::Any
  # Net_production::Any
   By_pass::Any
-#  Salto::Any
-#  Coefficiente::Any
+  Salto::Any
+  Coefficiente::Any
   u_pump::Any
   u_turb_1::Any
   u_turb_2::Any
@@ -435,3 +435,9 @@ struct Head_data
   max_head::Any
 end
 
+struct Coeff_data
+  K_1::Any
+  K_2::Any
+  K_3::Any
+  K_4::Any
+end

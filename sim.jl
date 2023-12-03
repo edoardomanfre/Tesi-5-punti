@@ -47,6 +47,7 @@ function sim(                                  # Ora conosco per ogni settimana 
   ValueTableSDP::FutureValueSDP,
   SimScen::SimScenData,
   runMode,
+  Coeff::Coeff_data
 )
 
   @unpack ResSeg, WVTable, AlphaTable = ValueTableSDP # Tiro fuori:unpack da SDP
@@ -94,8 +95,8 @@ function sim(                                  # Ora conosco per ogni settimana 
  # Net_production=zeros(HY.NMod,NSimScen,NStage,NStep)                          #Produzione netta
 
   By_pass=zeros(HY.NMod,NSimScen,NStage,NStep)                                  #By pass variable for minimum environmental flow
-#  Salto = zeros(HY.NMod,NSimScen,NStage)
-#  Coefficiente = zeros(HY.NMod,NSimScen,NStage)
+  Salto = zeros(HY.NMod,NSimScen,NStage)
+  Coefficiente = zeros(HY.NMod,NSimScen,NStage)
   u_pump = zeros(NSimScen, NStage,NStep)
   u_turb_1 = zeros(HY.NMod, NSimScen, NStage, NStep)
   u_turb_2 = zeros(HY.NMod, NSimScen, NStage, NStep)
@@ -116,43 +117,56 @@ function sim(                                  # Ora conosco per ogni settimana 
   for iScen = 1:NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
     earlyActive_maxDischarge = false
     add_dischargeLimitPump = false
-    SP = BuildProblem_sim(InputParameters, HY, SolverParameters)                    #Function to build model in "stageprob"
+    SP = BuildProblem_sim(InputParameters, HY, SolverParameters, Coeff)                    #Function to build model in "stageprob"
     print("Scen:", iScen)
     for t = 1:NStage                                                            #Calcolo per ogni settimana (cronologico)  
      # println("t:", t)
       Price = scenarios[iScen][t, 2] .* PriceScale[t,1:NStep]                   #Prezzo in quei N periodi (di TOTh) per lo scenario iScen, della settimana t      
-#=      Head = head_evaluation(case,Reservoir,HY,iScen,t,NStep)
+      Head = head_evaluation(case,Reservoir,HY,iScen,t,NStep)
       Salto[1,iScen,t] = Head.Head_upper
-      Salto[2,iScen,t] = Head.Head_lower      
-      S1_upper, S1_lower = efficiency_evaluation(HY,Head)
-      Coefficiente[1,iScen,t] = S1_upper
-      Coefficiente[2,iScen,t] = S1_lower=#      
-      for iMod = 1:HY.NMod  # Per il numero di bacini(2)
+      Salto[2,iScen,t] = Head.Head_lower    
+      Intercept = efficiency_evaluation(HY,Head)
+
+      for iMod = 1:HY.NMod
+
+        Coefficiente[iMod,iScen,t] = Intercept.K_1
+        Coefficiente[iMod,iScen,t] = Intercept.K_2
+        Coefficiente[iMod,iScen,t] = Intercept.K_3
+        Coefficiente[iMod,iScen,t] = Intercept.K_4    
 
         reservoir = 0
         for iStep = 1:NStep                                                     #Per ogni step nella settimana (1:3) - aggiorno la funzione obiettivo con i relativi coefficienti
 
-#=          if iMod == 1
-            JuMP.set_normalized_coefficient(
-              SP.prodeff[iMod, iStep],
-              SP.disSeg[iMod, 1, iStep], 
-              S1_upper,      
+          JuMP.set_normalized_coefficient(
+              SP.maxPowerTurb_1[iMod, iSeg, iStep],
+              SP.u_turb_1[iMod, iStep], 
+              K_1[iMod],      
             )
-          end
 
-          if iMod == 2
-            JuMP.set_normalized_coefficient(
-              SP.prodeff[iMod, iStep],
-              SP.disSeg[iMod, 1, iStep], 
-              S1_lower,     
-            )
-          end=#
+          JuMP.set_normalized_coefficient(
+            SP.maxPowerTurb_2[iMod, iSeg, iStep],
+            SP.u_turb_2[iMod, iStep], 
+            K_2[iMod],      
+          )
+
+          JuMP.set_normalized_coefficient(
+            SP.maxPowerTurb_3[iMod, iSeg, iStep],
+            SP.u_turb_3[iMod, iStep], 
+            K_3[iMod],      
+          )
+
+          JuMP.set_normalized_coefficient(
+            SP.maxPowerTurb_4[iMod, iSeg, iStep],
+            SP.u_turb_4[iMod, iStep], 
+            K_4[iMod],      
+          )
 
           set_objective_coefficient(
             SP.model,                                                           #SP e' il modello
             SP.prod[iMod, iStep],                                               #Davanti alla variabile prod[iMod, iStep]= produzione(MW) nel bacino iMod allo step iStep(1:3)
             NHoursStep * Price[iStep],                                          #Variabile che devo aggiungere (fattore_conversione*prezzo[iStep])
           )
+          
           set_objective_coefficient(
             SP.model,                                                           #Stessa cosa per la pompa: aggiorno la vraiabile prezzo
             SP.pump[iMod, iStep],                                                                             
@@ -415,8 +429,8 @@ function sim(                                  # Ora conosco per ogni settimana 
     Pumping,
     #Net_production,
     By_pass,
-#    Salto,
-#    Coefficiente,
+    Salto,
+    Coefficiente,
     u_pump,
     u_turb_1,
     u_turb_2,

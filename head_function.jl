@@ -133,9 +133,7 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
     @unpack (NMod,Eff,PowMaxSegTurb,DisPointTurb) = HY
     @unpack (Head_upper,Head_lower,max_head) = Head
 
-    S1_upper = 0
     S2_upper = 0
-    S1_lower = 0
     S2_lower = 0
     P_1_1 = zeros(HY.NMod)
     P_1_2 = zeros(HY.NMod)
@@ -159,7 +157,7 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
 
         if iMod == 1
 
-            if Head_upper == max_head[1] 
+            if Head_upper == max_head[iMod] 
                 P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
                 P_1_2[iMod] = HY.PowMaxSegTurb[iMod, 2]
                 P_1_3[iMod] = HY.PowMaxSegTurb[iMod, 3]
@@ -170,12 +168,11 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
                 K_3[iMod] = HY.PowMaxSegTurb[iMod, 3]-HY.DisPointTurb[iMod, 3]*((HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
                 K_4[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[1iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
             else
-                S1_upper = HY.Eff[1,1]
-                eta = HY.Eff[1,1] / (max_head[1] * 9810)
+                eta = HY.Eff[iMod,1] / (max_head[iMod] * 9810)
                 S2_upper = eta * 9810 * Head_upper
-                P_1_1[iMod] = HY.PowMaxSegTurb[1, 1]
-                P_2_1[iMod] = S2_upper * HY.DisPointTurb[1, 1]
-                Delta_Power[1] = P_1_1[iMod] - P_2_1[iMod]
+                P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
+                P_2_1[iMod] = S2_upper * HY.DisPointTurb[iMod, 1]
+                Delta_Power[iMod] = P_1_1[iMod] - P_2_1[iMod]
                 P_2_2[iMod] = HY.PowMaxSegTurb[iMod, 2] - Delta_Power[iMod]
                 P_2_3[iMod] = HY.PowMaxSegTurb[iMod, 3] - Delta_Power[iMod]
                 P_2_4[iMod] = HY.PowMaxSegTurb[iMod, 4] - Delta_Power[iMod]
@@ -189,7 +186,7 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
     # Lower reservoir
     
         else
-            if Head_lower == max_head[2] 
+            if Head_lower == max_head[iMod] 
                 P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
                 P_1_2[iMod] = HY.PowMaxSegTurb[iMod, 2]
                 P_1_3[iMod] = HY.PowMaxSegTurb[iMod, 3]
@@ -198,14 +195,13 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
                 K_1[iMod] = HY.PowMaxSegTurb[iMod, 1]-HY.DisPointTurb[iMod, 1]*((HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
                 K_2[iMod] = HY.PowMaxSegTurb[iMod, 2]-HY.DisPointTurb[iMod, 2]*((HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
                 K_3[iMod] = HY.PowMaxSegTurb[iMod, 3]-HY.DisPointTurb[iMod, 3]*((HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
-                K_4[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[1iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
+                K_4[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
             else 
-                S1_lower = HY.Eff[2,1]
-                eta = HY.Eff[2,1] / (max_head[2] * 9810)
+                eta = HY.Eff[iMod,1] / (max_head[iMod] * 9810)
                 S2_lower = eta * 9810 * Head_lower
-                P_1_1[iMod] = HY.PowMaxSegTurb[2, 1]
-                P_2_1[iMod] = S2_upper * HY.DisPointTurb[2, 1]
-                Delta_Power[1] = P_1_1[iMod] - P_2_1[iMod]
+                P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
+                P_2_1[iMod] = S2_upper * HY.DisPointTurb[iMod, 1]
+                Delta_Power[iMod] = P_1_1[iMod] - P_2_1[iMod]
                 P_2_2[iMod] = HY.PowMaxSegTurb[iMod, 2] - Delta_Power[iMod]
                 P_2_3[iMod] = HY.PowMaxSegTurb[iMod, 3] - Delta_Power[iMod]
                 P_2_4[iMod] = HY.PowMaxSegTurb[iMod, 4] - Delta_Power[iMod]
@@ -218,6 +214,6 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
         end    
     end
     
-    return K_1, K_2, K_3, K_4
+    return Coeff_data(K_1, K_2, K_3, K_4)
 
 end 
