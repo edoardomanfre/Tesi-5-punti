@@ -157,7 +157,7 @@ if runMode.simulate
     if runMode.parallellSim
       ResultsSim = paraSim(InputParameters, SolverParameters, ResultsSDP, SimScen, runMode)
     else
-      ResultsSim = sim(InputParameters, SolverParameters, ResultsSDP, SimScen, runMode, Coeff)
+      ResultsSim = sim(InputParameters, SolverParameters, ResultsSDP, SimScen, runMode)
     end
   end #timer "SDP simulation"  
 

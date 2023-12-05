@@ -46,8 +46,7 @@ function sim(                                  # Ora conosco per ogni settimana 
   SolverParameters::SolverParam,
   ValueTableSDP::FutureValueSDP,
   SimScen::SimScenData,
-  runMode,
-  Coeff::Coeff_data
+  runMode
 )
 
   @unpack ResSeg, WVTable, AlphaTable = ValueTableSDP # Tiro fuori:unpack da SDP
@@ -117,49 +116,62 @@ function sim(                                  # Ora conosco per ogni settimana 
   for iScen = 1:NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
     earlyActive_maxDischarge = false
     add_dischargeLimitPump = false
-    SP = BuildProblem_sim(InputParameters, HY, SolverParameters, Coeff)                    #Function to build model in "stageprob"
+    SP = BuildProblem_sim(InputParameters, HY, SolverParameters)                    #Function to build model in "stageprob"
     print("Scen:", iScen)
     for t = 1:NStage                                                            #Calcolo per ogni settimana (cronologico)  
      # println("t:", t)
       Price = scenarios[iScen][t, 2] .* PriceScale[t,1:NStep]                   #Prezzo in quei N periodi (di TOTh) per lo scenario iScen, della settimana t      
       Head = head_evaluation(case,Reservoir,HY,iScen,t,NStep)
       Salto[1,iScen,t] = Head.Head_upper
-      Salto[2,iScen,t] = Head.Head_lower    
+      Salto[2,iScen,t] = Head.Head_lower   
+
       Intercept = efficiency_evaluation(HY,Head)
+      @unpack (K_1, K_2, K_3, K_4) = Intercept
 
       for iMod = 1:HY.NMod
 
-        Coefficiente[iMod,iScen,t] = Intercept.K_1
-        Coefficiente[iMod,iScen,t] = Intercept.K_2
-        Coefficiente[iMod,iScen,t] = Intercept.K_3
-        Coefficiente[iMod,iScen,t] = Intercept.K_4    
+#        Coefficiente[iMod,iScen,t] = K_1
+#        Coefficiente[iMod,iScen,t] = K_2
+#        Coefficiente[iMod,iScen,t] = K_3
+#        Coefficiente[iMod,iScen,t] = K_4    
 
         reservoir = 0
         for iStep = 1:NStep                                                     #Per ogni step nella settimana (1:3) - aggiorno la funzione obiettivo con i relativi coefficienti
 
-          JuMP.set_normalized_coefficient(
-              SP.maxPowerTurb_1[iMod, iSeg, iStep],
-              SP.u_turb_1[iMod, iStep], 
-              K_1[iMod],      
-            )
+          for iSeg = 1:(HY.NDSeg[iMod]-1)
+            if iSeg == 1
 
-          JuMP.set_normalized_coefficient(
-            SP.maxPowerTurb_2[iMod, iSeg, iStep],
-            SP.u_turb_2[iMod, iStep], 
-            K_2[iMod],      
-          )
+              JuMP.set_normalized_coefficient(
+                SP.maxPowerTurb_1[iMod, iSeg, iStep],
+                SP.u_turb_1[iMod, iStep], 
+                K_1[iMod],      
+              )
+            end
 
-          JuMP.set_normalized_coefficient(
-            SP.maxPowerTurb_3[iMod, iSeg, iStep],
-            SP.u_turb_3[iMod, iStep], 
-            K_3[iMod],      
-          )
+            if iSeg == 2
+              JuMP.set_normalized_coefficient(
+                SP.maxPowerTurb_2[iMod, iSeg, iStep],
+                SP.u_turb_2[iMod, iStep], 
+                K_2[iMod],      
+              )
+            end
 
-          JuMP.set_normalized_coefficient(
-            SP.maxPowerTurb_4[iMod, iSeg, iStep],
-            SP.u_turb_4[iMod, iStep], 
-            K_4[iMod],      
-          )
+            if iSeg == 3
+              JuMP.set_normalized_coefficient(
+                SP.maxPowerTurb_3[iMod, iSeg, iStep],
+                SP.u_turb_3[iMod, iStep], 
+                K_3[iMod],      
+              )
+            end
+
+            if iSeg == 4
+              JuMP.set_normalized_coefficient(
+                SP.maxPowerTurb_4[iMod, iSeg, iStep],
+                SP.u_turb_4[iMod, iStep], 
+                K_4[iMod],      
+              )
+            end
+          end
 
           set_objective_coefficient(
             SP.model,                                                           #SP e' il modello
