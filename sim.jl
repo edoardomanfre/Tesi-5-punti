@@ -95,7 +95,7 @@ function sim(                                  # Ora conosco per ogni settimana 
 
   By_pass=zeros(HY.NMod,NSimScen,NStage,NStep)                                  #By pass variable for minimum environmental flow
   Salto = zeros(HY.NMod,NSimScen,NStage)
-  Coefficiente = zeros(HY.NMod,NSimScen,NStage)
+  Coefficiente = zeros(HY.NMod,NSimScen,NStage,HY.NDSeg[1]-1)
   u_pump = zeros(NSimScen, NStage,NStep)
   u_turb_1 = zeros(HY.NMod, NSimScen, NStage, NStep)
   u_turb_2 = zeros(HY.NMod, NSimScen, NStage, NStep)
@@ -126,51 +126,50 @@ function sim(                                  # Ora conosco per ogni settimana 
       Salto[2,iScen,t] = Head.Head_lower   
 
       Intercept = efficiency_evaluation(HY,Head)
-      @unpack (K_1, K_2, K_3, K_4) = Intercept
+#      @unpack (K_1, K_2, K_3, K_4) = Intercept
 
       for iMod = 1:HY.NMod
 
-#        Coefficiente[iMod,iScen,t] = K_1
-#        Coefficiente[iMod,iScen,t] = K_2
-#        Coefficiente[iMod,iScen,t] = K_3
-#        Coefficiente[iMod,iScen,t] = K_4    
+        Coefficiente[iMod,iScen,t,1] = Intercept.K_1[iMod]
+        Coefficiente[iMod,iScen,t,2] = Intercept.K_2[iMod]
+        Coefficiente[iMod,iScen,t,3] = Intercept.K_3[iMod]
+        Coefficiente[iMod,iScen,t,4] = Intercept.K_4[iMod]    
 
         reservoir = 0
         for iStep = 1:NStep                                                     #Per ogni step nella settimana (1:3) - aggiorno la funzione obiettivo con i relativi coefficienti
 
           for iSeg = 1:(HY.NDSeg[iMod]-1)
+
             if iSeg == 1
 
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_1[iMod, iSeg, iStep],
                 SP.u_turb_1[iMod, iStep], 
-                K_1[iMod],      
+                - Intercept.K_1[iMod],      
               )
-            end
-
-            if iSeg == 2
+              
+            elseif iSeg == 2
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_2[iMod, iSeg, iStep],
                 SP.u_turb_2[iMod, iStep], 
-                K_2[iMod],      
+                - Intercept.K_2[iMod],      
               )
-            end
-
-            if iSeg == 3
+        
+            elseif iSeg == 3
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_3[iMod, iSeg, iStep],
                 SP.u_turb_3[iMod, iStep], 
-                K_3[iMod],      
+                - Intercept.K_3[iMod],      
               )
-            end
-
-            if iSeg == 4
+            
+            elseif iSeg == 4
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_4[iMod, iSeg, iStep],
                 SP.u_turb_4[iMod, iStep], 
-                K_4[iMod],      
+                - Intercept.K_4[iMod],      
               )
             end
+
           end
 
           set_objective_coefficient(

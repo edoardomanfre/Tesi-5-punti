@@ -8,7 +8,7 @@ using DelimitedFiles
 function savePlots(InputParameters::InputParam, ResultsSim::Results)
 
     @unpack NSeg, NStage, NStates, MaxIt, conv, StepFranc, NHoursStep, NStep, LimitPump = InputParameters
-#    @unpack Salto, Coefficiente = ResultsSim
+    @unpack Salto, Coefficiente = ResultsSim
 
     scenarios = collect(1:100)
     println("Plots for scenarios $scenarios")
@@ -34,8 +34,8 @@ function savePlots(InputParameters::InputParam, ResultsSim::Results)
     concatenation_disSeg_2 = zeros(HY.NMod, NSimScen, NStep * NStage)
     concatenation_disSeg_3 = zeros(HY.NMod, NSimScen, NStep * NStage)
     concatenation_disSeg_4 = zeros(HY.NMod, NSimScen, NStep * NStage)
-#    concatenation_head = zeros(HY.NMod, NSimScen, NStage)
-#    concatenation_coeff = zeros(HY.NMod, NSimScen, NStage)
+    concatenation_head = zeros(HY.NMod, NSimScen, NStage)
+    concatenation_coeff = zeros(HY.NMod, NSimScen, NStage * (HY.NDSeg[1]-1))
     
     for iMod = 1:HY.NMod
         for iScen = 1:NSimScen
@@ -66,16 +66,20 @@ function savePlots(InputParameters::InputParam, ResultsSim::Results)
         end
     end
 
-#=    for iMod = 1:HY.NMod
+    for iMod = 1:HY.NMod
         for iScen = 1:NSimScen
             for iStage = 1:NStage
                 start = iStage
                 finish = iStage
                 concatenation_head[iMod, iScen, start:finish] .= ResultsSim.Salto[iMod, iScen, iStage]
-                concatenation_coeff[iMod, iScen, start:finish] .= ResultsSim.Coefficiente[iMod, iScen, iStage]
+
+                for iSeg = 1:(HY.NDSeg[1]-1)
+                    concatenation_coeff[iMod, iScen, start:finish] .= ResultsSim.Coefficiente[iMod, iScen, iStage, iSeg]
+                end
+                
             end
         end
-    end=#
+    end
 
 
     folder = "Scenarios"
@@ -103,8 +107,8 @@ function savePlots(InputParameters::InputParam, ResultsSim::Results)
         DisSeg_2 = DataFrame()
         DisSeg_3 = DataFrame()
         DisSeg_4 = DataFrame()
-#        Head = DataFrame()
-#        Coeff = DataFrame()
+        Head = DataFrame()
+        Coeff = DataFrame()
 
         for iStep = NStage * NStep
             for iMod = 1:HY.NMod
@@ -128,8 +132,8 @@ function savePlots(InputParameters::InputParam, ResultsSim::Results)
                 DisSeg_2[!, "Reservoir_$iMod"] = concatenation_disSeg_2[iMod, i, :]
                 DisSeg_3[!, "Reservoir_$iMod"] = concatenation_disSeg_3[iMod, i, :]
                 DisSeg_4[!, "Reservoir_$iMod"] = concatenation_disSeg_4[iMod, i, :]
-#                Head[!, "Salto_$iMod"] = concatenation_head[iMod, i, :]
-#                Coeff[!, "Salto_$iMod"] = concatenation_coeff[iMod, i, :]
+                Head[!, "Salto_$iMod"] = concatenation_head[iMod, i, :]
+                Coeff[!, "Salto_$iMod"] = concatenation_coeff[iMod, i, :]
             end
         end
 
@@ -154,8 +158,8 @@ function savePlots(InputParameters::InputParam, ResultsSim::Results)
             DisSeg_2 = (collect(DataFrames.eachcol(DisSeg_2)), DataFrames.names(DisSeg_2)),
             DisSeg_3 = (collect(DataFrames.eachcol(DisSeg_3)), DataFrames.names(DisSeg_3)),
             DisSeg_4 = (collect(DataFrames.eachcol(DisSeg_4)), DataFrames.names(DisSeg_4)),
-#            Head = (collect(DataFrames.eachcol(Head)), DataFrames.names(Head)),
-#            Coeff = (collect(DataFrames.eachcol(Coeff)), DataFrames.names(Coeff))
+            Head = (collect(DataFrames.eachcol(Head)), DataFrames.names(Head)),
+            Coeff = (collect(DataFrames.eachcol(Coeff)), DataFrames.names(Coeff))
         )
     end
 end
