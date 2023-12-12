@@ -96,6 +96,7 @@ function sim(                                  # Ora conosco per ogni settimana 
   By_pass=zeros(HY.NMod,NSimScen,NStage,NStep)                                  #By pass variable for minimum environmental flow
   Salto = zeros(HY.NMod,NSimScen,NStage)
   Coefficiente = zeros(HY.NMod,NSimScen,NStage,HY.NDSeg[1]-1)
+  Coefficiente_pump = zeros(NSimScen,NStage)
   u_pump = zeros(NSimScen, NStage,NStep)
   u_turb_1 = zeros(HY.NMod, NSimScen, NStage, NStep)
   u_turb_2 = zeros(HY.NMod, NSimScen, NStage, NStep)
@@ -113,7 +114,7 @@ function sim(                                  # Ora conosco per ogni settimana 
 
   MIP_counter = 0
   nProblems = 0
-  for iScen = 1:NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
+  for iScen = 1:3#NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
     earlyActive_maxDischarge = false
     add_dischargeLimitPump = false
     SP = BuildProblem_sim(InputParameters, HY, SolverParameters)                    #Function to build model in "stageprob"
@@ -127,6 +128,17 @@ function sim(                                  # Ora conosco per ogni settimana 
 
       Intercept = efficiency_evaluation(HY,Head)
 #      @unpack (K_1, K_2, K_3, K_4) = Intercept
+      Coefficiente_pump[iScen,t] = Intercept.K_pump
+
+      for iStep = 1:NStep
+
+        JuMP.set_normalized_coefficient(
+          SP.maxPowerPump[iStep],
+          SP.u_pump[iStep], 
+          - Coefficiente_pump[iScen,t],      
+        )
+
+      end
 
       for iMod = 1:HY.NMod
 
@@ -145,28 +157,28 @@ function sim(                                  # Ora conosco per ogni settimana 
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_1[iMod, iSeg, iStep],
                 SP.u_turb_1[iMod, iStep], 
-                - Intercept.K_1[iMod],      
+                - Coefficiente[iMod,iScen,t,1],      
               )
               
             elseif iSeg == 2
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_2[iMod, iSeg, iStep],
                 SP.u_turb_2[iMod, iStep], 
-                - Intercept.K_2[iMod],      
+                - Coefficiente[iMod,iScen,t,2],      
               )
         
             elseif iSeg == 3
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_3[iMod, iSeg, iStep],
                 SP.u_turb_3[iMod, iStep], 
-                - Intercept.K_3[iMod],      
+                - Coefficiente[iMod,iScen,t,3],      
               )
             
             elseif iSeg == 4
               JuMP.set_normalized_coefficient(
                 SP.maxPowerTurb_4[iMod, iSeg, iStep],
                 SP.u_turb_4[iMod, iStep], 
-                - Intercept.K_4[iMod],      
+                - Coefficiente[iMod,iScen,t,4],      
               )
             end
 
@@ -442,6 +454,7 @@ function sim(                                  # Ora conosco per ogni settimana 
     By_pass,
     Salto,
     Coefficiente,
+    Coefficiente_pump,
     u_pump,
     u_turb_1,
     u_turb_2,

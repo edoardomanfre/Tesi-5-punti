@@ -385,6 +385,7 @@ struct Results
   By_pass::Any
   Salto::Any
   Coefficiente::Any
+  Coefficiente_pump::Any
   u_pump::Any
   u_turb_1::Any
   u_turb_2::Any
@@ -440,4 +441,5 @@ struct Coeff_data
   K_2::Any
   K_3::Any
   K_4::Any
+  K_pump::Any
 end
