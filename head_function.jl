@@ -2,7 +2,7 @@
 
 function head_evaluation(
     case::caseData, 
-    Reservoir,
+    Reservoir_round,
     HY::HydroData,
     iScen,
     t,
@@ -79,37 +79,37 @@ function head_evaluation(
                     end
 
                 else        
-                    if Reservoir[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,n]
+                    if Reservoir_round[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,n]
                         Level[iMod] = water_levels_file[iMod,n] 
-                    elseif Reservoir[iMod,iScen,t-1,NStep]> water_volumes_file[iMod,n] && Reservoir[iMod,iScen,t-1,NStep]< water_volumes_file[iMod,n+1]
-                        Level[iMod] = (water_levels_file[iMod,n+1]-water_levels_file[iMod,n])/(water_volumes_file[iMod,n+1]-water_volumes_file[iMod,n])*(Reservoir[iMod,iScen,t-1,NStep]-water_volumes_file[iMod,n])+water_levels_file[iMod,n]
+                    elseif Reservoir_round[iMod,iScen,t-1,NStep]> water_volumes_file[iMod,n] && Reservoir_round[iMod,iScen,t-1,NStep]< water_volumes_file[iMod,n+1]
+                        Level[iMod] = (water_levels_file[iMod,n+1]-water_levels_file[iMod,n])/(water_volumes_file[iMod,n+1]-water_volumes_file[iMod,n])*(Reservoir_round[iMod,iScen,t-1,NStep]-water_volumes_file[iMod,n])+water_levels_file[iMod,n]
                     end
 
-                    if Reservoir[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,Int(NVolumes[iMod])] 
+                    if Reservoir_round[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,Int(NVolumes[iMod])] 
                         Level[iMod] = water_levels_file[iMod,Int(NVolumes[iMod])]
                     end
 
                 end
             else
                 if t == 1
-                    if Reservoir[iMod,iScen-1,end,NStep] == water_volumes_file[iMod,n]
+                    if Reservoir_round[iMod,iScen-1,end,NStep] == water_volumes_file[iMod,n]
                         Level[iMod] = water_levels_file[iMod,n]
-                    elseif Reservoir[iMod,iScen-1,end,NStep]> water_volumes_file[iMod,n] && Reservoir[iMod,iScen-1,end,NStep]< water_volumes_file[iMod,n+1]
-                        Level[iMod] = (water_levels_file[iMod,n+1]-water_levels_file[iMod,n])/(water_volumes_file[iMod,n+1]-water_volumes_file[iMod,n])*(Reservoir[iMod,iScen-1,end,NStep]-water_volumes_file[iMod,n])+water_levels_file[iMod,n]
+                    elseif Reservoir_round[iMod,iScen-1,end,NStep]> water_volumes_file[iMod,n] && Reservoir_round[iMod,iScen-1,end,NStep]< water_volumes_file[iMod,n+1]
+                        Level[iMod] = (water_levels_file[iMod,n+1]-water_levels_file[iMod,n])/(water_volumes_file[iMod,n+1]-water_volumes_file[iMod,n])*(Reservoir_round[iMod,iScen-1,end,NStep]-water_volumes_file[iMod,n])+water_levels_file[iMod,n]
                     end
 
-                    if Reservoir[iMod,iScen-1,end,NStep] == water_volumes_file[iMod,Int(NVolumes[iMod])] 
+                    if Reservoir_round[iMod,iScen-1,end,NStep] == water_volumes_file[iMod,Int(NVolumes[iMod])] 
                         Level[iMod] = water_levels_file[iMod,Int(NVolumes[iMod])]
                     end
 
                 else
-                    if Reservoir[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,n]
+                    if Reservoir_round[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,n]
                         Level[iMod] = water_levels_file[iMod,n]
-                    elseif Reservoir[iMod,iScen,t-1,NStep]> water_volumes_file[iMod,n] && Reservoir[iMod,iScen,t-1,NStep]< water_volumes_file[iMod,n+1]
-                        Level[iMod] = (water_levels_file[iMod,n+1]-water_levels_file[iMod,n])/(water_volumes_file[iMod,n+1]-water_volumes_file[iMod,n])*(Reservoir[iMod,iScen,t-1,NStep]-water_volumes_file[iMod,n])+water_levels_file[iMod,n] 
+                    elseif Reservoir_round[iMod,iScen,t-1,NStep]> water_volumes_file[iMod,n] && Reservoir_round[iMod,iScen,t-1,NStep]< water_volumes_file[iMod,n+1]
+                        Level[iMod] = (water_levels_file[iMod,n+1]-water_levels_file[iMod,n])/(water_volumes_file[iMod,n+1]-water_volumes_file[iMod,n])*(Reservoir_round[iMod,iScen,t-1,NStep]-water_volumes_file[iMod,n])+water_levels_file[iMod,n] 
                     end
 
-                    if Reservoir[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,Int(NVolumes[iMod])] 
+                    if Reservoir_round[iMod,iScen,t-1,NStep] == water_volumes_file[iMod,Int(NVolumes[iMod])] 
                         Level[iMod] = water_levels_file[iMod,Int(NVolumes[iMod])]
                     end
 
@@ -137,10 +137,6 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
     S2_lower = 0
     S2_pump = 0
     P_1_1 = zeros(HY.NMod)
-    P_1_2 = zeros(HY.NMod)
-    P_1_3 = zeros(HY.NMod)
-    P_1_4 = zeros(HY.NMod)
-    P_1_5 = zeros(HY.NMod)
     P_2_1 = zeros(HY.NMod)
     P_2_2 = zeros(HY.NMod)
     P_2_3 = zeros(HY.NMod)
@@ -151,13 +147,13 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
     K_3 = zeros(HY.NMod)
     K_4 = zeros(HY.NMod)
     Delta_Power = zeros(HY.NMod)
-    Delta_Power_pump = 0
+    
 
     P_1_1_pump = 0
-    P_1_2_pump = 0
     P_2_1_pump = 0
     P_2_2_pump = 0
     K_pump = 0
+    Delta_Power_pump = 0
 
     # Upper reservoir
 
@@ -167,7 +163,7 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
         eta_pump = (max_head[1] * 9810) / HY.EffPump[1]
         S2_pump = (9810 * Head_upper) / eta_pump 
         P_1_1_pump = HY.PowMaxSegPump[1]
-        P_2_1_pump = S2_pump * HY.DisPointPump[1]
+        P_2_1_pump = HY.DisPointPump[1] / S2_pump 
         Delta_Power_pump = P_1_1_pump - P_2_1_pump
         P_2_2_pump = HY.PowMaxSegPump[2] - Delta_Power_pump
         K_pump = P_2_1_pump-HY.DisPointPump[1]*((P_2_2_pump - P_2_1_pump)/(HY.DisPointPump[2]-HY.DisPointPump[1]))
@@ -210,7 +206,7 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
                 eta = HY.Eff[iMod,1] / (max_head[iMod] * 9810)
                 S2_lower = eta * 9810 * Head_lower
                 P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
-                P_2_1[iMod] = S2_upper * HY.DisPointTurb[iMod, 1]
+                P_2_1[iMod] = S2_lower * HY.DisPointTurb[iMod, 1]
                 Delta_Power[iMod] = P_1_1[iMod] - P_2_1[iMod]
                 P_2_2[iMod] = HY.PowMaxSegTurb[iMod, 2] - Delta_Power[iMod]
                 P_2_3[iMod] = HY.PowMaxSegTurb[iMod, 3] - Delta_Power[iMod]

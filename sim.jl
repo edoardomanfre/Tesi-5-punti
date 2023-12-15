@@ -114,7 +114,7 @@ function sim(                                  # Ora conosco per ogni settimana 
 
   MIP_counter = 0
   nProblems = 0
-  for iScen = 1:3#NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
+  for iScen = 1:NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
     earlyActive_maxDischarge = false
     add_dischargeLimitPump = false
     SP = BuildProblem_sim(InputParameters, HY, SolverParameters)                    #Function to build model in "stageprob"
@@ -122,7 +122,7 @@ function sim(                                  # Ora conosco per ogni settimana 
     for t = 1:NStage                                                            #Calcolo per ogni settimana (cronologico)  
      # println("t:", t)
       Price = scenarios[iScen][t, 2] .* PriceScale[t,1:NStep]                   #Prezzo in quei N periodi (di TOTh) per lo scenario iScen, della settimana t      
-      Head = head_evaluation(case,Reservoir,HY,iScen,t,NStep)
+      Head = head_evaluation(case,Reservoir_round,HY,iScen,t,NStep)
       Salto[1,iScen,t] = Head.Head_upper
       Salto[2,iScen,t] = Head.Head_lower   
 
@@ -377,7 +377,7 @@ function sim(                                  # Ora conosco per ogni settimana 
 
             inflow[iMod,iScen,t,iStep]= StepFranc[t,iStep] .* scenarios[iScen][t, 1] * HY.Scale[iMod]
             
-            Reservoir_round[iMod,iScen,t,iStep] = round(Reservoir[iMod,iScen,t,iStep],digits=8)
+            Reservoir_round[iMod,iScen,t,iStep] = round(Reservoir[iMod,iScen,t,iStep],digits=2)
 
             u_pump[iScen, t, iStep] = JuMP.value(SP.u_pump[iStep])
             u_turb_1[iMod,iScen,t,iStep] = JuMP.value(SP.u_turb_1[iMod,iStep])
