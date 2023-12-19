@@ -119,7 +119,7 @@ function sim(                                  # Ora conosco per ogni settimana 
     add_dischargeLimitPump = false
     SP = BuildProblem_sim(InputParameters, HY, SolverParameters)                    #Function to build model in "stageprob"
     print("Scen:", iScen)
-    for t = 1:NStage                                                            #Calcolo per ogni settimana (cronologico)  
+    for t = 1:3#NStage                                                            #Calcolo per ogni settimana (cronologico)  
      # println("t:", t)
       Price = scenarios[iScen][t, 2] .* PriceScale[t,1:NStep]                   #Prezzo in quei N periodi (di TOTh) per lo scenario iScen, della settimana t      
       Head = head_evaluation(case,Reservoir_round,HY,iScen,t,NStep)

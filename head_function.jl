@@ -160,10 +160,9 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
     if Head_upper == max_head[1] 
         K_pump = HY.PowMaxSegPump[1]-HY.DisPointPump[1]*((HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1]))
     else
-        eta_pump = (max_head[1] * 9810) / HY.EffPump[1]
-        S2_pump = (9810 * Head_upper) / eta_pump 
+        eta_pump = (max_head[1] * 9810 * HY.DisPointPump[1]) / (HY.PowMaxSegPump[1] * 1000000)
         P_1_1_pump = HY.PowMaxSegPump[1]
-        P_2_1_pump = HY.DisPointPump[1] / S2_pump 
+        P_2_1_pump = (HY.DisPointPump[1] * Head_upper * 9810) / (eta_pump * 1000000)
         Delta_Power_pump = P_1_1_pump - P_2_1_pump
         P_2_2_pump = HY.PowMaxSegPump[2] - Delta_Power_pump
         K_pump = P_2_1_pump-HY.DisPointPump[1]*((P_2_2_pump - P_2_1_pump)/(HY.DisPointPump[2]-HY.DisPointPump[1]))
