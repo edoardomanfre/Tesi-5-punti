@@ -278,14 +278,14 @@ function ReadHydroData(path)
         Eff[iMod, iSeg] = (parse(Float64, items[1+iSeg*2-1]) - parse(Float64, items[1+(iSeg-1)*2-1])) / DisMaxSeg[iMod, iSeg]
       end
     end
-    m_1[iMod] = (HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1])
-    m_2[iMod] = (HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2])
-    m_3[iMod] = (HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3])
-    m_4[iMod] = (HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4])
-    K_1_max[iMod] = HY.PowMaxSegTurb[iMod, 1]-HY.DisPointTurb[iMod, 1]*((HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
-    K_2_max[iMod] = HY.PowMaxSegTurb[iMod, 2]-HY.DisPointTurb[iMod, 2]*((HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
-    K_3_max[iMod] = HY.PowMaxSegTurb[iMod, 3]-HY.DisPointTurb[iMod, 3]*((HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
-    K_4_max[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
+    m_1[iMod] = (PowMaxSegTurb[iMod, 2]-PowMaxSegTurb[iMod, 1])/(DisPointTurb[iMod, 2]-DisPointTurb[iMod, 1])
+    m_2[iMod] = (PowMaxSegTurb[iMod, 3]-PowMaxSegTurb[iMod, 2])/(DisPointTurb[iMod, 3]-DisPointTurb[iMod, 2])
+    m_3[iMod] = (PowMaxSegTurb[iMod, 4]-PowMaxSegTurb[iMod, 3])/(DisPointTurb[iMod, 4]-DisPointTurb[iMod, 3])
+    m_4[iMod] = (PowMaxSegTurb[iMod, 5]-PowMaxSegTurb[iMod, 4])/(DisPointTurb[iMod, 5]-DisPointTurb[iMod, 4])
+    K_1_max[iMod] = PowMaxSegTurb[iMod, 1]-DisPointTurb[iMod, 1]*((PowMaxSegTurb[iMod, 2]-PowMaxSegTurb[iMod, 1])/(DisPointTurb[iMod, 2]-DisPointTurb[iMod, 1]))
+    K_2_max[iMod] = PowMaxSegTurb[iMod, 2]-DisPointTurb[iMod, 2]*((PowMaxSegTurb[iMod, 3]-PowMaxSegTurb[iMod, 2])/(DisPointTurb[iMod, 3]-DisPointTurb[iMod, 2]))
+    K_3_max[iMod] = PowMaxSegTurb[iMod, 3]-DisPointTurb[iMod, 3]*((PowMaxSegTurb[iMod, 4]-PowMaxSegTurb[iMod, 3])/(DisPointTurb[iMod, 4]-DisPointTurb[iMod, 3]))
+    K_4_max[iMod] = PowMaxSegTurb[iMod, 4]-DisPointTurb[iMod, 4]*((PowMaxSegTurb[iMod, 5]-PowMaxSegTurb[iMod, 4])/(DisPointTurb[iMod, 5]-DisPointTurb[iMod, 4]))
   end
 
   # Set max reservoir (MaxRes), start reservoir (Resinit0), Scale and NUp for each module
@@ -353,8 +353,8 @@ function ReadHydroData(path)
         EffPump[iSeg] = DisMaxSegPump[iSeg]/(parse(Float64, items[iSeg*2+1]) - parse(Float64, items[(iSeg-1)*2+1])) 
       end
     end
-    m_pump = (HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1])
-    K_pump_max = HY.PowMaxSegPump[1]-HY.DisPointPump[1]*((HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1]))
+    m_pump = (PowMaxSegPump[2]-PowMaxSegPump[1])/(DisPointPump[2]-DisPointPump[1])
+    K_pump_max = PowMaxSegPump[1]-DisPointPump[1]*((PowMaxSegPump[2]-PowMaxSegPump[1])/(DisPointPump[2]-DisPointPump[1]))
     Pump_direction[1]=1
     Pump_direction[2]=-1
   end

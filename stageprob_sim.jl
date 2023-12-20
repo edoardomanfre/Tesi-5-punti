@@ -307,7 +307,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerTurb_3[iMod = 1:HY.NMod, iSeg = 3, iStep = 1:NStep],
-    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_3[iMod] + u_turb_3[iMod, iStep] * HY.K_3_max
+    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_3[iMod] + u_turb_3[iMod, iStep] * HY.K_3_max[iMod]
   )
 
   #Turbine four segment
@@ -326,7 +326,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerTurb_4[iMod = 1:HY.NMod, iSeg = 4, iStep = 1:NStep],
-    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_4[iMod] + u_turb_4[iMod, iStep] * HY.K_4_max
+    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_4[iMod] + u_turb_4[iMod, iStep] * HY.K_4_max[iMod]
   )
 
   @constraint(

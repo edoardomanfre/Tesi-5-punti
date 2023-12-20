@@ -114,7 +114,7 @@ function sim(                                  # Ora conosco per ogni settimana 
 
   MIP_counter = 0
   nProblems = 0
-  for iScen = 1:3#NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
+  for iScen = 1:NSimScen                                                        #Comincio a calcolare i valori per i 100 scenari, cominciando da iScen=1 (ordine cronologico)
     earlyActive_maxDischarge = false
     add_dischargeLimitPump = false
     SP = BuildProblem_sim(InputParameters, HY, SolverParameters)                    #Function to build model in "stageprob"
