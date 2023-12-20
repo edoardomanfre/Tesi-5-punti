@@ -253,6 +253,14 @@ function ReadHydroData(path)
   DisPointTurb=zeros(Float64, NMod, MaxSeg)
   PowMaxSegTurb=zeros(Float64, NMod, MaxSeg)
   Eff = zeros(Float64, NMod, MaxSeg)
+  m_1 = zeros(Float64, NMod)
+  m_2 = zeros(Float64, NMod)
+  m_3 = zeros(Float64, NMod)
+  m_4 = zeros(Float64, NMod) 
+  K_1_max = zeros(Float64, NMod)
+  K_2_max = zeros(Float64, NMod)
+  K_3_max = zeros(Float64, NMod)
+  K_4_max = zeros(Float64, NMod)
   for iMod = 1:NMod
     line = readline(f)
     items = split(line, " ")
@@ -270,6 +278,14 @@ function ReadHydroData(path)
         Eff[iMod, iSeg] = (parse(Float64, items[1+iSeg*2-1]) - parse(Float64, items[1+(iSeg-1)*2-1])) / DisMaxSeg[iMod, iSeg]
       end
     end
+    m_1[iMod] = (HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1])
+    m_2[iMod] = (HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2])
+    m_3[iMod] = (HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3])
+    m_4[iMod] = (HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4])
+    K_1_max[iMod] = HY.PowMaxSegTurb[iMod, 1]-HY.DisPointTurb[iMod, 1]*((HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
+    K_2_max[iMod] = HY.PowMaxSegTurb[iMod, 2]-HY.DisPointTurb[iMod, 2]*((HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
+    K_3_max[iMod] = HY.PowMaxSegTurb[iMod, 3]-HY.DisPointTurb[iMod, 3]*((HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
+    K_4_max[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
   end
 
   # Set max reservoir (MaxRes), start reservoir (Resinit0), Scale and NUp for each module
@@ -307,6 +323,8 @@ function ReadHydroData(path)
   DisPointPump=zeros(Float64,MaxSegPump)
   PowMaxSegPump=zeros(Float64,MaxSegPump)
   EffPump=zeros(Float64,MaxSegPump)
+  m_pump = 0
+  K_pump_max = 0
   Pump_direction=zeros(Int,2)
 
   line=readline(f)
@@ -335,6 +353,8 @@ function ReadHydroData(path)
         EffPump[iSeg] = DisMaxSegPump[iSeg]/(parse(Float64, items[iSeg*2+1]) - parse(Float64, items[(iSeg-1)*2+1])) 
       end
     end
+    m_pump = (HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1])
+    K_pump_max = HY.PowMaxSegPump[1]-HY.DisPointPump[1]*((HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1]))
     Pump_direction[1]=1
     Pump_direction[2]=-1
   end
@@ -382,7 +402,7 @@ function ReadHydroData(path)
   close(f)
   println("closed file: ", path)
 
-  return HydroData(NMod, NUp, Eff, NDSeg, DisMaxSeg, MaxRes, Scale, ResInit0, qMin,Station_with_pump,NDSegPump,DisMaxSegPump,DisPointPump,PowMaxSegPump,DisPointTurb,PowMaxSegTurb,EffPump,Pump_direction,N_min_flows,Activation_weeks,Min_flows)
+  return HydroData(NMod, NUp, Eff, NDSeg, DisMaxSeg, MaxRes, Scale, ResInit0, qMin,Station_with_pump,NDSegPump,DisMaxSegPump,DisPointPump,PowMaxSegPump,DisPointTurb,PowMaxSegTurb,EffPump,Pump_direction,N_min_flows,Activation_weeks,Min_flows,m_1,m_2,m_3,m_4,K_1_max,K_2_max,K_3_max,K_4_max,m_pump,K_pump_max)
 end
 
 # Environmental constraint

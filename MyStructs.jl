@@ -68,6 +68,16 @@ struct HydroData
   N_min_flows::Any
   Activation_weeks::Any   #Settimane a cui si riferiscono i vari q_min
   Min_flows::Any          #q_min per le varie Activation weeks(0.0 0.5 0.2 0.0)
+  m_1::Any
+  m_2::Any
+  m_3::Any
+  m_4::Any
+  K_1_max::Any
+  K_2_max::Any
+  K_3_max::Any
+  K_4_max::Any
+  m_pump::Any
+  K_pump_max::Any
 end
 
 # run settings

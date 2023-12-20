@@ -130,12 +130,11 @@ end
 
 function efficiency_evaluation(HY::HydroData, Head::Head_data)
 
-    @unpack (NMod,Eff,PowMaxSegTurb,DisPointTurb,PowMaxSegPump,DisPointPump) = HY
+    @unpack (NMod,Eff,PowMaxSegTurb,DisPointTurb,PowMaxSegPump,DisPointPump,K_1_max,K_2_max,K_3_max,K_4_max,K_pump_max) = HY
     @unpack (Head_upper,Head_lower,max_head) = Head
 
     S2_upper = 0
     S2_lower = 0
-    S2_pump = 0
     P_1_1 = zeros(HY.NMod)
     P_2_1 = zeros(HY.NMod)
     P_2_2 = zeros(HY.NMod)
@@ -151,21 +150,19 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
 
     P_1_1_pump = 0
     P_2_1_pump = 0
-    P_2_2_pump = 0
     K_pump = 0
     Delta_Power_pump = 0
 
     # Upper reservoir
 
     if Head_upper == max_head[1] 
-        K_pump = HY.PowMaxSegPump[1]-HY.DisPointPump[1]*((HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1]))
+        K_pump = HY.K_pump_max
     else
         eta_pump = (max_head[1] * 9810 * HY.DisPointPump[1]) / (HY.PowMaxSegPump[1] * 1000000)
         P_1_1_pump = HY.PowMaxSegPump[1]
         P_2_1_pump = (HY.DisPointPump[1] * Head_upper * 9810) / (eta_pump * 1000000)
         Delta_Power_pump = P_1_1_pump - P_2_1_pump
-        P_2_2_pump = HY.PowMaxSegPump[2] - Delta_Power_pump
-        K_pump = P_2_1_pump-HY.DisPointPump[1]*((P_2_2_pump - P_2_1_pump)/(HY.DisPointPump[2]-HY.DisPointPump[1]))
+        K_pump = HY.K_pump_max - Delta_Power_pump
     end
 
     for iMod = 1:HY.NMod
@@ -173,48 +170,38 @@ function efficiency_evaluation(HY::HydroData, Head::Head_data)
         if iMod == 1
 
             if Head_upper == max_head[iMod] 
-                K_1[iMod] = HY.PowMaxSegTurb[iMod, 1]-HY.DisPointTurb[iMod, 1]*((HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
-                K_2[iMod] = HY.PowMaxSegTurb[iMod, 2]-HY.DisPointTurb[iMod, 2]*((HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
-                K_3[iMod] = HY.PowMaxSegTurb[iMod, 3]-HY.DisPointTurb[iMod, 3]*((HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
-                K_4[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
+                K_1[iMod] = HY.K_1_max[iMod]
+                K_2[iMod] = HY.K_2_max[iMod]
+                K_3[iMod] = HY.K_3_max[iMod]
+                K_4[iMod] = HY.K_4_max[iMod]
             else
-                eta = HY.Eff[iMod,1] / (max_head[iMod] * 9810)
-                S2_upper = eta * 9810 * Head_upper
+                eta = HY.PowMaxSegTurb[iMod, 1] / (1000000 * HY.DisPointTurb[iMod, 1] * max_head[iMod] * 9810)
                 P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
-                P_2_1[iMod] = S2_upper * HY.DisPointTurb[iMod, 1]
+                P_2_1[iMod] = (1000000 * HY.DisPointTurb[iMod, 1] * eta * Head_upper * 9810)
                 Delta_Power[iMod] = P_1_1[iMod] - P_2_1[iMod]
-                P_2_2[iMod] = HY.PowMaxSegTurb[iMod, 2] - Delta_Power[iMod]
-                P_2_3[iMod] = HY.PowMaxSegTurb[iMod, 3] - Delta_Power[iMod]
-                P_2_4[iMod] = HY.PowMaxSegTurb[iMod, 4] - Delta_Power[iMod]
-                P_2_5[iMod] = HY.PowMaxSegTurb[iMod, 5] - Delta_Power[iMod]
-                K_1[iMod] = P_2_1[iMod]-HY.DisPointTurb[iMod, 1]*((P_2_2[iMod] - P_2_1[iMod])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
-                K_2[iMod] = P_2_2[iMod]-HY.DisPointTurb[iMod, 2]*((P_2_3[iMod] - P_2_2[iMod])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
-                K_3[iMod] = P_2_3[iMod]-HY.DisPointTurb[iMod, 3]*((P_2_4[iMod] - P_2_3[iMod])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
-                K_4[iMod] = P_2_4[iMod]-HY.DisPointTurb[iMod, 4]*((P_2_5[iMod] - P_2_4[iMod])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
+                K_1[iMod] = HY.K_1_max[iMod] - Delta_Power[iMod]
+                K_2[iMod] = HY.K_2_max[iMod] - Delta_Power[iMod]
+                K_3[iMod] = HY.K_3_max[iMod] - Delta_Power[iMod]
+                K_4[iMod] = HY.K_4_max[iMod] - Delta_Power[iMod]
             end
 
     # Lower reservoir
     
         else
             if Head_lower == max_head[iMod] 
-                K_1[iMod] = HY.PowMaxSegTurb[iMod, 1]-HY.DisPointTurb[iMod, 1]*((HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
-                K_2[iMod] = HY.PowMaxSegTurb[iMod, 2]-HY.DisPointTurb[iMod, 2]*((HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
-                K_3[iMod] = HY.PowMaxSegTurb[iMod, 3]-HY.DisPointTurb[iMod, 3]*((HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
-                K_4[iMod] = HY.PowMaxSegTurb[iMod, 4]-HY.DisPointTurb[iMod, 4]*((HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
+                K_1[iMod] = HY.K_1_max[iMod]
+                K_2[iMod] = HY.K_2_max[iMod]
+                K_3[iMod] = HY.K_3_max[iMod]
+                K_4[iMod] = HY.K_4_max[iMod]
             else 
-                eta = HY.Eff[iMod,1] / (max_head[iMod] * 9810)
-                S2_lower = eta * 9810 * Head_lower
+                eta = HY.PowMaxSegTurb[iMod, 1] / (1000000 * HY.DisPointTurb[iMod, 1] * max_head[iMod] * 9810)
                 P_1_1[iMod] = HY.PowMaxSegTurb[iMod, 1]
-                P_2_1[iMod] = S2_lower * HY.DisPointTurb[iMod, 1]
+                P_2_1[iMod] = (1000000 * HY.DisPointTurb[iMod, 1] * eta * Head_lower * 9810)
                 Delta_Power[iMod] = P_1_1[iMod] - P_2_1[iMod]
-                P_2_2[iMod] = HY.PowMaxSegTurb[iMod, 2] - Delta_Power[iMod]
-                P_2_3[iMod] = HY.PowMaxSegTurb[iMod, 3] - Delta_Power[iMod]
-                P_2_4[iMod] = HY.PowMaxSegTurb[iMod, 4] - Delta_Power[iMod]
-                P_2_5[iMod] = HY.PowMaxSegTurb[iMod, 5] - Delta_Power[iMod]
-                K_1[iMod] = P_2_1[iMod]-HY.DisPointTurb[iMod, 1]*((P_2_2[iMod] - P_2_1[iMod])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]))
-                K_2[iMod] = P_2_2[iMod]-HY.DisPointTurb[iMod, 2]*((P_2_3[iMod] - P_2_2[iMod])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]))
-                K_3[iMod] = P_2_3[iMod]-HY.DisPointTurb[iMod, 3]*((P_2_4[iMod] - P_2_3[iMod])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]))
-                K_4[iMod] = P_2_4[iMod]-HY.DisPointTurb[iMod, 4]*((P_2_5[iMod] - P_2_4[iMod])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]))
+                K_1[iMod] = HY.K_1_max[iMod] - Delta_Power[iMod]
+                K_2[iMod] = HY.K_2_max[iMod] - Delta_Power[iMod]
+                K_3[iMod] = HY.K_3_max[iMod] - Delta_Power[iMod]
+                K_4[iMod] = HY.K_4_max[iMod] - Delta_Power[iMod]
             end
         end    
     end

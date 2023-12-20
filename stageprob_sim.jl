@@ -250,7 +250,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerPump[iStep = 1:NStep],
-    powSegPump[iStep] == disSegPump[iStep]*(HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1]) + u_pump[iStep]*(HY.PowMaxSegPump[1]-HY.DisPointPump[1]*((HY.PowMaxSegPump[2]-HY.PowMaxSegPump[1])/(HY.DisPointPump[2]-HY.DisPointPump[1])))
+    powSegPump[iStep] == disSegPump[iStep] * HY.m_pump + u_pump[iStep] * HY.K_pump_max
   )
 
   #Turbine first segment
@@ -269,7 +269,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerTurb_1[iMod = 1:HY.NMod, iSeg = 1, iStep = 1:NStep],
-    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep]*(HY.PowMaxSegTurb[iMod, 2]-HY.PowMaxSegTurb[iMod, 1])/(HY.DisPointTurb[iMod, 2]-HY.DisPointTurb[iMod, 1]) + u_turb_1[iMod, iStep] * (HY.PowMaxSegTurb[iMod,1]-HY.DisPointTurb[iMod,1]*((HY.PowMaxSegTurb[iMod,2]-HY.PowMaxSegTurb[iMod,1])/(HY.DisPointTurb[iMod,2]-HY.DisPointTurb[iMod,1])))
+    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_1[iMod]  + u_turb_1[iMod, iStep] * HY.K_1_max[iMod]
   )
 
   #Turbine second segment
@@ -288,7 +288,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerTurb_2[iMod = 1:HY.NMod, iSeg = 2, iStep = 1:NStep],
-    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep]*(HY.PowMaxSegTurb[iMod, 3]-HY.PowMaxSegTurb[iMod, 2])/(HY.DisPointTurb[iMod, 3]-HY.DisPointTurb[iMod, 2]) + u_turb_2[iMod, iStep] * (HY.PowMaxSegTurb[iMod,2]-HY.DisPointTurb[iMod,2]*((HY.PowMaxSegTurb[iMod,3]-HY.PowMaxSegTurb[iMod,2])/(HY.DisPointTurb[iMod,3]-HY.DisPointTurb[iMod,2])))
+    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_2[iMod] + u_turb_2[iMod, iStep] * HY.K_2_max[iMod]
   )
 
   #Turbine third segment
@@ -307,7 +307,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerTurb_3[iMod = 1:HY.NMod, iSeg = 3, iStep = 1:NStep],
-    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep]*(HY.PowMaxSegTurb[iMod, 4]-HY.PowMaxSegTurb[iMod, 3])/(HY.DisPointTurb[iMod, 4]-HY.DisPointTurb[iMod, 3]) + u_turb_3[iMod, iStep] * (HY.PowMaxSegTurb[iMod,3]-HY.DisPointTurb[iMod,3]*((HY.PowMaxSegTurb[iMod,4]-HY.PowMaxSegTurb[iMod,3])/(HY.DisPointTurb[iMod,4]-HY.DisPointTurb[iMod,3])))
+    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_3[iMod] + u_turb_3[iMod, iStep] * HY.K_3_max
   )
 
   #Turbine four segment
@@ -326,7 +326,7 @@ function BuildStageProblemTwoRes_sim(InputParameters::InputParam, HY::HydroData,
   @constraint(
     M,
     maxPowerTurb_4[iMod = 1:HY.NMod, iSeg = 4, iStep = 1:NStep],
-    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep]*(HY.PowMaxSegTurb[iMod, 5]-HY.PowMaxSegTurb[iMod, 4])/(HY.DisPointTurb[iMod, 5]-HY.DisPointTurb[iMod, 4]) + u_turb_4[iMod, iStep] * (HY.PowMaxSegTurb[iMod,4]-HY.DisPointTurb[iMod,4]*((HY.PowMaxSegTurb[iMod,5]-HY.PowMaxSegTurb[iMod,4])/(HY.DisPointTurb[iMod,5]-HY.DisPointTurb[iMod,4])))
+    powSegTurb[iMod, iSeg, iStep] == disSeg[iMod, iSeg, iStep] * HY.m_4[iMod] + u_turb_4[iMod, iStep] * HY.K_4_max
   )
 
   @constraint(
